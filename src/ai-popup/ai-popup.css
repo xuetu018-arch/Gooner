@@ -1,0 +1,178 @@
+* {
+  box-sizing: border-box;
+}
+
+:root {
+  --ai-popup-body-bg: #050505;
+  --ai-popup-text-color: #f4f7fb;
+  --ai-popup-text-size: 16px;
+  --ai-popup-line-height: 1.5;
+  --ai-popup-text-align: left;
+  --ai-popup-card-bg: #050505;
+  --ai-popup-card-border-color: #1f2b33;
+  --ai-popup-card-border-width: 0px;
+  --ai-popup-card-radius: 8px;
+  --ai-popup-card-padding-x: 2px;
+  --ai-popup-card-padding-y: 0px;
+  --ai-popup-text-shadow: none;
+  --ai-popup-close-font-size: 13px;
+  --ai-popup-close-radius: 6px;
+  --ai-popup-close-padding-x: 12px;
+  --ai-popup-close-padding-y: 6px;
+  --ai-popup-close-offset-x: 6px;
+  --ai-popup-close-offset-y: 6px;
+  --ai-popup-close-bg: #000000;
+  --ai-popup-close-text: #ffffff;
+  --ai-popup-close-border: #ffffff;
+  --ai-popup-close-hover-bg: #2f3b45;
+  --ai-popup-close-hover-text: #ffffff;
+}
+
+html,
+body {
+  width: 100%;
+  margin: 0;
+}
+
+body {
+  position: relative;
+  overflow: hidden;
+  padding:
+    var(--ai-popup-body-padding-top, 40px)
+    var(--ai-popup-body-padding-x, 6px)
+    var(--ai-popup-body-padding-bottom, 6px);
+  background-color: var(--ai-popup-body-bg);
+  color: var(--ai-popup-text-color);
+  font-family: "Segoe UI", Arial, sans-serif;
+}
+
+.text-card,
+.reply-form,
+#closeButton {
+  -webkit-app-region: no-drag;
+}
+
+#closeButton {
+  position: fixed;
+  left: var(--ai-popup-close-offset-x);
+  top: var(--ai-popup-close-offset-y);
+  min-width: 52px;
+  min-height: 28px;
+  padding: var(--ai-popup-close-padding-y) var(--ai-popup-close-padding-x);
+  border: 1px solid var(--ai-popup-close-border);
+  border-radius: var(--ai-popup-close-radius);
+  background: var(--ai-popup-close-bg);
+  color: var(--ai-popup-close-text);
+  font-size: var(--ai-popup-close-font-size);
+  line-height: 1;
+  cursor: pointer;
+  transition: background 140ms ease, color 140ms ease, border-color 140ms ease;
+}
+
+#closeButton:hover {
+  background: var(--ai-popup-close-hover-bg);
+  color: var(--ai-popup-close-hover-text);
+}
+
+.text-card {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: calc(100vh - var(--ai-popup-body-padding-top, 40px) - var(--ai-popup-body-padding-bottom, 6px));
+  margin: 0;
+  padding: var(--ai-popup-card-padding-y) var(--ai-popup-card-padding-x);
+  overflow: auto;
+  color: var(--ai-popup-text-color);
+  font-size: var(--ai-popup-text-size);
+  line-height: var(--ai-popup-line-height);
+  text-align: var(--ai-popup-text-align);
+  white-space: pre-wrap;
+  word-break: break-word;
+  text-shadow: var(--ai-popup-text-shadow, none);
+  border: var(--ai-popup-card-border-width) solid var(--ai-popup-card-border-color);
+  border-radius: var(--ai-popup-card-radius);
+  background: var(--ai-popup-card-bg);
+  box-shadow: var(--ai-popup-card-shadow, none);
+}
+
+.reply-form {
+  position: fixed;
+  z-index: 5;
+  display: grid;
+  width: min(320px, calc(100vw - 16px));
+  gap: 6px;
+  border: 1px solid var(--ai-popup-card-border-color);
+  border-radius: var(--ai-popup-card-radius);
+  padding: 8px;
+  background: var(--ai-popup-card-bg);
+  box-shadow: var(--ai-popup-card-shadow, 0 10px 28px rgba(0, 0, 0, 0.32));
+}
+
+.reply-form[hidden] {
+  display: none;
+}
+
+#replyInput {
+  width: 100%;
+  min-height: 52px;
+  max-height: 120px;
+  border: 1px solid var(--ai-popup-close-border);
+  border-radius: var(--ai-popup-close-radius);
+  padding: 8px 10px;
+  resize: vertical;
+  background: var(--ai-popup-body-bg);
+  color: var(--ai-popup-text-color);
+  font: inherit;
+  line-height: 1.35;
+  outline: none;
+}
+
+#replyInput:focus {
+  border-color: var(--ai-popup-close-hover-bg);
+}
+
+.reply-actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.reply-status {
+  min-height: 18px;
+  color: var(--ai-popup-text-color);
+  font-size: 12px;
+  line-height: 1.35;
+  opacity: 0.72;
+}
+
+.reply-status[data-level="success"] {
+  opacity: 1;
+}
+
+.reply-status[data-level="error"] {
+  color: #ffadb3;
+  opacity: 1;
+}
+
+#replyButton {
+  min-width: 64px;
+  min-height: 30px;
+  padding: var(--ai-popup-close-padding-y) var(--ai-popup-close-padding-x);
+  border: 1px solid var(--ai-popup-close-border);
+  border-radius: var(--ai-popup-close-radius);
+  background: var(--ai-popup-close-bg);
+  color: var(--ai-popup-close-text);
+  font-size: var(--ai-popup-close-font-size);
+  cursor: pointer;
+}
+
+#replyButton:hover:not(:disabled) {
+  background: var(--ai-popup-close-hover-bg);
+  color: var(--ai-popup-close-hover-text);
+}
+
+#replyButton:disabled {
+  cursor: wait;
+  opacity: 0.62;
+}

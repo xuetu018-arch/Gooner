@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gooner</title>
+    <link rel="stylesheet" href="ai-popup.css" />
+  </head>
+  <body>
+    <article id="text" class="text-card">Loading...</article>
+    <form id="replyForm" class="reply-form" hidden>
+      <textarea id="replyInput" rows="2" maxlength="1000" spellcheck="false" data-i18n-placeholder="ai.reply.placeholder"></textarea>
+      <div class="reply-actions">
+        <span id="replyStatus" class="reply-status" aria-live="polite"></span>
+        <button id="replyButton" type="submit" data-i18n="ai.reply.send">发送</button>
+      </div>
+    </form>
+    <button id="closeButton" type="button" title="关闭">关闭</button>
+    <script src="../shared/i18n.js"></script>
+    <script src="ai-popup.js"></script>
+  </body>
+  </html>

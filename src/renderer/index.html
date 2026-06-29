@@ -1,0 +1,1207 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gooner</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="window-bar">
+      <div class="window-title" data-i18n="app.title">Gooner</div>
+      <div class="window-controls">
+        <button id="themeToggleButton" type="button" aria-label="切换主题" data-i18n-aria-label="buttons.theme" title="切换主题">☼</button>
+        <button id="minimizeWindowButton" type="button" aria-label="最小化" data-i18n-aria-label="buttons.minimize">-</button>
+        <button id="closeWindowButton" type="button" aria-label="关闭" data-i18n-aria-label="buttons.close">x</button>
+      </div>
+    </div>
+    <main class="app-layout">
+      <header class="topbar dashboard-bar">
+        <div class="dashboard-header">
+          <div class="eyebrow" data-i18n="topbar.eyebrow">Local media popups</div>
+          <h1 data-i18n="app.title">Gooner</h1>
+          <p id="statusText">准备就绪</p>
+        </div>
+        
+        <div class="dashboard-progress-area">
+          <div class="progress-box">
+            <div class="progress-label">
+              <span>
+                <span data-i18n="dashboard.dailyProgress">今日印章进度</span>
+                <span id="dailyStampText" class="daily-stamp-text"></span>
+              </span>
+              <span id="dailyProgressText">0 / 1h</span>
+            </div>
+            <div class="progress-track">
+              <div class="progress-fill" id="dailyProgressFill" style="width: 0%"></div>
+            </div>
+          </div>
+          
+          <div class="progress-box">
+            <div class="progress-label">
+              <span data-i18n="dashboard.monthlyProgress">本月大满贯进度</span>
+              <span id="monthlyProgressText">0 / 30</span>
+            </div>
+            <div class="progress-track">
+              <div class="progress-fill fill-monthly" id="monthlyProgressFill" style="width: 0%"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="dashboard-stats-area">
+          <div class="stat-badge" id="topbarPlayTime" title="总播放时长" data-i18n-title="stats.totalPlayTime">播放 0s</div>
+          <div class="stat-badge" id="topbarUptime" title="总运行时长" data-i18n-title="stats.totalUptime">运行 0s</div>
+          <div class="stat-badge" id="mediaCount">媒体 0</div>
+          <div class="stat-badge" id="popupCount">弹窗 0</div>
+          <div class="stat-badge primary-badge" id="runState">已停止</div>
+        </div>
+      </header>
+
+      <div class="main-body">
+        <aside class="sidebar">
+          <div class="nav-title" data-i18n="sidebar.title">设置导航</div>
+          <nav class="nav-list" aria-label="页面导航" data-i18n-aria-label="nav.aria">
+            <button type="button" class="nav-item active" data-page="media">
+              <span class="nav-item-icon" aria-hidden="true">◫</span>
+              <span data-i18n="nav.media">媒体库</span>
+            </button>
+            <button type="button" class="nav-item" data-page="schedule">
+              <span class="nav-item-icon" aria-hidden="true">◷</span>
+              <span data-i18n="nav.schedule">调度与播放</span>
+            </button>
+            <button type="button" class="nav-item" data-page="appearance">
+              <span class="nav-item-icon" aria-hidden="true">✦</span>
+              <span data-i18n="nav.appearance">弹窗行为</span>
+            </button>
+            <button type="button" class="nav-item" data-page="ai">
+              <span class="nav-item-icon" aria-hidden="true">✎</span>
+              <span data-i18n="nav.ai">AI 与内容</span>
+            </button>
+            <button type="button" class="nav-item" data-page="advanced">
+              <span class="nav-item-icon" aria-hidden="true">⌘</span>
+              <span data-i18n="nav.advanced">高级控制</span>
+            </button>
+            <button type="button" class="nav-item" data-page="stats">
+              <span class="nav-item-icon" aria-hidden="true">📈</span>
+              <span data-i18n="nav.stats">生涯记录</span>
+            </button>
+          </nav>
+        </aside>
+
+        <section class="content-area">
+          <section class="page active" id="page-media">
+            <div class="page-header">
+              <h2 data-i18n="page.media">媒体库</h2>
+              <button id="saveButton" type="button" data-i18n="buttons.save">保存设置</button>
+            </div>
+
+            <section class="panel config-file-panel">
+              <div class="panel-title">
+                <h3 data-i18n="config.profile.title">配置档案 (Profile)</h3>
+                <div class="panel-title-actions">
+                  <select id="profileSelector" class="profile-selector">
+                    <option value="">加载中...</option>
+                  </select>
+                </div>
+              </div>
+              <p class="panel-note" data-i18n="config.profile.note">选择不同的档案可以瞬间切换你的所有设定（频率、人设、壁纸等）。</p>
+            </section>
+            <section class="panel wallpaper-panel">
+              <div class="panel-title">
+                <h3 data-i18n="wallpaper.title">桌面壁纸自动更换</h3>
+                <label class="switch-row compact-switch">
+                  <span data-i18n="wallpaper.enabled">开启自动更换桌面壁纸</span>
+                  <input id="wallpaperEnabled" type="checkbox" /><i></i>
+                </label>
+              </div>
+              <p class="panel-note" data-i18n="wallpaper.note">由于要完美适配您的多显示器（如横竖屏差异），程序会自动为各个显示器寻找对应比例的壁纸图片。如果没有合适的图片将跳过。</p>
+              <div class="schedule-grid">
+                <label class="field">
+                  <span data-i18n="wallpaper.intervalMinutes">更换间隔（分钟）</span>
+                  <input id="wallpaperIntervalMinutes" type="number" min="1" max="10080" step="1" />
+                </label>
+                <label class="field">
+                  <span data-i18n="wallpaper.minResolution">最低分辨率限制</span>
+                  <input id="wallpaperMinResolution" type="number" min="0" max="8000" step="1" />
+                </label>
+                <label class="field">
+                  <span data-i18n="wallpaper.maxRatioDeviation">允许的最大宽高比偏差</span>
+                  <input id="wallpaperMaxRatioDeviation" type="number" min="0" max="1.0" step="0.01" />
+                </label>
+              </div>
+              <div class="test-wallpaper-action" style="margin-top: 10px;">
+                <button id="testWallpaperButton" type="button" class="btn" data-i18n="wallpaper.test">测试更换壁纸</button>
+              </div>
+            </section>
+            <section class="panel folders-panel accent-panel">
+              <div class="panel-title">
+                <h3 data-i18n="folders.title">媒体文件夹</h3>
+                <button id="addFoldersButton" type="button" data-i18n="buttons.addFolders">添加文件夹</button>
+              </div>
+              <div id="folderList" class="folder-list"></div>
+              <div id="mediaScanSettingsMount" class="media-scan-settings"></div>
+              <div class="actions-inline">
+                <button id="scanButton" type="button" data-i18n="buttons.scan">扫描媒体</button>
+              </div>
+            </section>
+          </section>
+
+          <section class="page" id="page-stats">
+            <div class="page-header">
+              <h2 data-i18n="page.stats">生涯记录</h2>
+            </div>
+            <section class="panel stats-overview-panel">
+              <div class="panel-title">
+                <h3 data-i18n="stats.panel.title">生涯概览</h3>
+              </div>
+              <div class="stats-grid">
+                <div class="stat-card">
+                  <div class="stat-label" data-i18n="stats.totalPlayTime">总播放时长</div>
+                  <div class="stat-value" id="statPlayTime">-</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-label" data-i18n="stats.totalUptime">总运行时长</div>
+                  <div class="stat-value" id="statUptime">-</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-label" data-i18n="stats.longestSession">单次最长播放</div>
+                  <div class="stat-value" id="statLongestSession">-</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-label" data-i18n="stats.dailyAverage">日均播放</div>
+                  <div class="stat-value" id="statDailyAverage">-</div>
+                </div>
+              </div>
+              <div class="stats-grid stats-grid-secondary" style="margin-top: 12px;">
+                <div class="stat-card">
+                  <div class="stat-label" data-i18n="stats.popups">弹窗记录</div>
+                  <div class="stat-sub-values">
+                    <span><span data-i18n="stats.popup.image">图片</span>: <span id="statPopupImage" class="stat-accent">0</span></span>
+                    <span><span data-i18n="stats.popup.video">视频</span>: <span id="statPopupVideo" class="stat-accent">0</span></span>
+                    <span><span data-i18n="stats.popup.website">网站</span>: <span id="statPopupWebsite" class="stat-accent">0</span></span>
+                    <span><span data-i18n="stats.popup.ai">AI 互动</span>: <span id="statPopupAi" class="stat-accent">0</span></span>
+                  </div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-label" data-i18n="stats.closes">操作习惯</div>
+                  <div class="stat-sub-values">
+                    <span><span data-i18n="stats.close.manual">手动关闭</span>: <span id="statCloseManual" class="stat-accent">0</span></span>
+                    <span><span data-i18n="stats.close.auto">自动关闭</span>: <span id="statCloseAuto" class="stat-accent">0</span></span>
+                  </div>
+                </div>
+              </div>
+            </section>
+            
+            <section class="panel calendar-panel">
+              <div class="calendar-header">
+                <button id="prevMonthBtn" class="calendar-nav-btn">&lt;</button>
+                <h3 id="calendarMonthLabel" class="calendar-title">2026年5月</h3>
+                <button id="nextMonthBtn" class="calendar-nav-btn">&gt;</button>
+              </div>
+              <div class="calendar-days-header">
+                <span data-i18n="calendar.sun">日</span>
+                <span data-i18n="calendar.mon">一</span>
+                <span data-i18n="calendar.tue">二</span>
+                <span data-i18n="calendar.wed">三</span>
+                <span data-i18n="calendar.thu">四</span>
+                <span data-i18n="calendar.fri">五</span>
+                <span data-i18n="calendar.sat">六</span>
+              </div>
+              <div id="calendarGrid" class="calendar-grid"></div>
+              <div id="fullMonthStamp" class="full-month-stamp hidden">
+                <div class="stamp-inner" data-i18n="stamp.fullMonth">大满贯</div>
+              </div>
+            </section>
+          </section>
+
+          <section class="page" id="page-schedule">
+            <div class="page-header">
+              <h2 data-i18n="page.schedule">调度与播放</h2>
+            </div>
+            <section class="panel">
+              <p class="panel-note scrub-note" data-i18n="schedule.scrubNote">数值框支持按住后左右拖动，松手即停；到达范围边界时会自动贴住最小值或最大值。</p>
+              <div class="field-row">
+                <div class="field">
+                  <span data-i18n="schedule.interval">弹出间隔</span>
+                  <div class="compact-digital-clock">
+                    <div class="clock-unit">
+                      <span class="clock-unit-label" data-i18n="schedule.time.hour">时</span>
+                      <input id="intervalHours" type="number" min="0" max="24" step="1" placeholder="00" />
+                    </div>
+                    <span class="clock-colon">:</span>
+                    <div class="clock-unit">
+                      <span class="clock-unit-label" data-i18n="schedule.time.minute">分</span>
+                      <input id="intervalMinutes" type="number" min="0" max="59" step="1" placeholder="00" />
+                    </div>
+                    <span class="clock-colon">:</span>
+                    <div class="clock-unit">
+                      <span class="clock-unit-label" data-i18n="schedule.time.second">秒</span>
+                      <input id="intervalSeconds" type="number" min="0" max="59" step="1" placeholder="00" />
+                    </div>
+                  </div>
+                </div>
+                <div class="field">
+                  <span data-i18n="schedule.jitter">随机波动区间（正负）</span>
+                  <div class="compact-digital-clock">
+                    <div class="clock-unit">
+                      <span class="clock-unit-label" data-i18n="schedule.time.hour">时</span>
+                      <input id="jitterHours" type="number" min="0" max="24" step="1" placeholder="00" />
+                    </div>
+                    <span class="clock-colon">:</span>
+                    <div class="clock-unit">
+                      <span class="clock-unit-label" data-i18n="schedule.time.minute">分</span>
+                      <input id="jitterMinutes" type="number" min="0" max="59" step="1" placeholder="00" />
+                    </div>
+                    <span class="clock-colon">:</span>
+                    <div class="clock-unit">
+                      <span class="clock-unit-label" data-i18n="schedule.time.second">秒</span>
+                      <input id="jitterSeconds" type="number" min="0" max="59" step="1" placeholder="00" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="field-row">
+                <label class="field">
+                  <span data-i18n="schedule.burstCount">每次弹窗数量</span>
+                  <input id="burstCount" type="number" min="1" max="20" step="1" />
+                </label>
+                <label class="field">
+                  <span data-i18n="schedule.minWindows">最小弹窗数</span>
+                  <input id="minWindows" type="number" min="0" max="500" step="1" />
+                </label>
+                <label class="field">
+                  <span data-i18n="schedule.maxWindows">最大同时窗口数</span>
+                  <input id="maxWindows" type="number" min="1" max="500" step="1" />
+                </label>
+                <label class="field">
+                  <span data-i18n="schedule.maxVideoWindows">最大视频窗口数</span>
+                  <input id="maxVideoWindows" type="number" min="-1" max="500" step="1" />
+                </label>
+              </div>
+              <label class="switch-row warning-check"><span data-i18n="schedule.unlimitedWindows">无限窗口</span><input id="unlimitedWindows" type="checkbox" /><i></i></label>
+              <p id="unlimitedWarning" class="warning-text" hidden data-i18n="schedule.unlimitedWarning">无限窗口可能迅速耗尽内存或显卡资源，严重时会导致电脑卡死或死机。</p>
+              <p class="panel-note" data-i18n="schedule.maxVideoWindowsHelp">最大视频窗口数设为 -1 时不限制，仅限制视频，不影响图片弹窗。</p>
+              <label class="field">
+                <span data-i18n="schedule.order">播放顺序</span>
+                <select id="order">
+                  <option value="random" data-i18n="order.random">随机</option>
+                  <option value="name" data-i18n="order.name">按文件名</option>
+                </select>
+              </label>
+            </section>
+            <section class="panel process-rules-panel">
+              <div class="panel-title">
+                <h3 data-i18n="processRules.title">进程黑名单 / 白名单</h3>
+                <label class="switch-row compact-switch"><span data-i18n="processRules.enabled">启用进程规则</span><input id="processRulesEnabled" type="checkbox" /><i></i></label>
+              </div>
+              <p class="panel-note" data-i18n="processRules.note">每行写一个进程名，例如 chrome 或 chrome.exe。黑名单命中时暂停调度；白名单填写后，只有命中白名单才会继续调度。需要先点“启动”来布防，暂停或停止仍会立即生效。</p>
+              <div class="process-rules-grid">
+                <label class="field process-rules-list">
+                  <span class="field-title-row"><span data-i18n="processRules.blacklist">黑名单进程</span><button id="chooseBlacklistProcessButton" type="button" data-i18n="processRules.chooseRunning">选择运行中进程</button></span>
+                  <textarea id="processRulesBlacklist" rows="6" spellcheck="false" data-i18n-placeholder="processRules.blacklistPlaceholder"></textarea>
+                </label>
+                <label class="field process-rules-list">
+                  <span class="field-title-row"><span data-i18n="processRules.whitelist">白名单进程</span><button id="chooseWhitelistProcessButton" type="button" data-i18n="processRules.chooseRunning">选择运行中进程</button></span>
+                  <textarea id="processRulesWhitelist" rows="6" spellcheck="false" data-i18n-placeholder="processRules.whitelistPlaceholder"></textarea>
+                </label>
+                <div class="field-span-2">
+                  <div class="panel-title" style="margin-top: 8px;">
+                    <h4 data-i18n="processRules.autoProfileTitle">自动模式切换 (工作模式等)</h4>
+                  </div>
+                  <label class="field">
+                    <span data-i18n="processRules.autoProfileConfig">目标配置档案 (当下方进程运行时自动无缝切换)</span>
+                    <div class="actions-inline" style="display: flex; gap: 8px; margin-top: 4px;">
+                      <select id="autoProfileConfigPath" class="profile-selector" style="flex: 1; padding: 6px; border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: var(--bg-color); color: var(--text-color);">
+                        <option value="">(不自动切换)</option>
+                      </select>
+                    </div>
+                  </label>
+                  <label class="field process-rules-list" style="margin-top: 8px;">
+                    <span class="field-title-row"><span data-i18n="processRules.autoProfileProcesses">触发模式的进程名单</span><button id="chooseAutoProfileProcessButton" type="button" data-i18n="processRules.chooseRunning">选择运行中进程</button></span>
+                    <textarea id="autoProfileProcesses" rows="4" spellcheck="false" placeholder="code.exe&#10;winword.exe"></textarea>
+                  </label>
+                </div>
+                <label class="field process-rules-interval">
+                  <span data-i18n="processRules.checkInterval">检测间隔（秒）</span>
+                  <input id="processRulesCheckIntervalSeconds" type="number" min="2" max="300" step="1" />
+                </label>
+                <p id="processRulesStatus" class="panel-note process-rules-status" aria-live="polite"></p>
+              </div>
+              <div class="behavior-switch-list process-rules-switches" role="group" aria-label="进程规则自动动作">
+                <label class="switch-row"><span class="switch-name" data-i18n="processRules.autoStartOnWhitelist">命中白名单时自动启动</span><span class="switch-state" aria-hidden="true"></span><input id="processRulesAutoStartOnWhitelist" type="checkbox" /><i></i></label>
+                <label class="switch-row"><span class="switch-name" data-i18n="processRules.stopOnBlacklist">命中黑名单时自动停止</span><span class="switch-state" aria-hidden="true"></span><input id="processRulesStopOnBlacklist" type="checkbox" /><i></i></label>
+                <label class="switch-row"><span class="switch-name" data-i18n="processRules.stopOnWhitelistExit">退出白名单时自动停止</span><span class="switch-state" aria-hidden="true"></span><input id="processRulesStopOnWhitelistExit" type="checkbox" /><i></i></label>
+              </div>
+            </section>
+          </section>
+
+          <section class="page" id="page-websites">
+            <div class="page-header">
+              <h2 data-i18n="page.websites">网站库</h2>
+              <button id="websiteSaveButton" type="button" data-i18n="website.save">保存网站库</button>
+            </div>
+            <div class="website-shell">
+              <section class="panel accent-panel website-editor-panel">
+                <div class="panel-title">
+                  <h3 data-i18n="website.title">网页链接库</h3>
+                  <label class="switch-row compact-switch"><span data-i18n="website.enableSchedule">让网站参与弹窗调度</span><input id="websiteLibraryEnabled" type="checkbox" /><i></i></label>
+                </div>
+                <p class="panel-note" data-i18n="website.note">网站会按当前调度时间使用系统默认浏览器打开，手动测试也是同样行为；应用无法关闭已打开的浏览器标签页或窗口。</p>
+                <p class="panel-note website-format-note" data-i18n="website.format">每行一个条目，格式为 名称 | 链接。以 ! 开头可临时禁用该行，以 # 开头可写备注。未写协议时会自动补 https://。</p>
+                <label class="field field-span-2">
+                  <span data-i18n="website.editor">批量编辑链接</span>
+                  <textarea id="websiteLibraryText" rows="16" data-i18n-placeholder="website.placeholder"></textarea>
+                </label>
+              </section>
+
+              <section class="panel website-preview-panel">
+                <div class="panel-title website-preview-head">
+                  <h3 data-i18n="website.preview">维护预览</h3>
+                  <button id="websiteShowPopupButton" type="button" data-i18n="website.testRandom">测试弹出一个网站</button>
+                </div>
+                <label class="field website-search-field">
+                  <span data-i18n="website.search">搜索链接</span>
+                  <input id="websiteLibrarySearch" type="text" data-i18n-placeholder="website.searchPlaceholder" />
+                </label>
+                <p id="websiteLibraryStats" class="panel-note"></p>
+                <div id="websiteLibraryList" class="website-library-list"></div>
+              </section>
+            </div>
+          </section>
+
+          <section class="page" id="page-appearance">
+            <div class="page-header">
+              <h2 data-i18n="page.appearance">弹窗行为</h2>
+            </div>
+            <div class="settings-shell">
+              <aside class="panel section-sidebar">
+                <div class="section-sidebar-title" data-i18n="appearance.sidebarTitle">外观分组</div>
+                <div class="section-nav-list" role="tablist" aria-label="外观设置导航" data-i18n-aria-label="appearance.navAria">
+                  <button type="button" class="section-nav-item active" data-section-target="appearance-behavior">
+                    <span class="section-nav-icon" aria-hidden="true">✦</span>
+                    <span data-i18n="appearance.section.behavior">弹窗效果</span>
+                  </button>
+                  <button type="button" class="section-nav-item" data-section-target="appearance-displays">
+                    <span class="section-nav-icon" aria-hidden="true">🖵</span>
+                    <span data-i18n="appearance.section.displays">显示器</span>
+                  </button>
+                  <button type="button" class="section-nav-item" data-section-target="appearance-close-button">
+                    <span class="section-nav-icon" aria-hidden="true">◩</span>
+                    <span data-i18n="appearance.section.closeButton">关闭按钮</span>
+                  </button>
+                  <button type="button" class="section-nav-item" data-section-target="appearance-window-size">
+                    <span class="section-nav-icon" aria-hidden="true">⬚</span>
+                    <span data-i18n="appearance.section.windowSize">窗口尺寸</span>
+                  </button>
+                </div>
+              </aside>
+
+              <div class="section-content">
+                <section class="section-panel active" data-section-panel="appearance-behavior">
+                  <section class="panel">
+                    <h3 data-i18n="appearance.effects">弹窗效果</h3>
+                    <p class="panel-note" data-i18n="ai.popupPoolNote">启用后，系统会按你当前填写的系统设定、基础知识和上下文记忆自动生成文本，并像媒体一样参与同一个弹窗调度。</p>
+                    <div class="field-row">
+                      <div class="field popup-lifetime-field">
+                        <span data-i18n="appearance.popupLifetime">自然消失时间</span>
+                        <div class="compact-digital-clock">
+                          <div class="clock-unit">
+                            <span class="clock-unit-label" data-i18n="schedule.time.hour">时</span>
+                            <input id="popupLifetimeHours" type="number" min="0" max="24" step="1" placeholder="00" />
+                          </div>
+                          <span class="clock-colon">:</span>
+                          <div class="clock-unit">
+                            <span class="clock-unit-label" data-i18n="schedule.time.minute">分</span>
+                            <input id="popupLifetimeMinutes" type="number" min="0" max="59" step="1" placeholder="00" />
+                          </div>
+                          <span class="clock-colon">:</span>
+                          <div class="clock-unit">
+                            <span class="clock-unit-label" data-i18n="schedule.time.second">秒</span>
+                            <input id="popupLifetimeSeconds" type="number" min="0" max="59" step="1" placeholder="00" />
+                          </div>
+                        </div>
+                      </div>
+                      <div class="field popup-lifetime-jitter-field">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                          <span data-i18n="appearance.popupLifetimeJitter">自然消失时间随机变化</span>
+                          <input id="popupLifetimeJitterMode" type="hidden" value="both" />
+                          <div class="symbol-toggle-group" aria-label="自然消失时间浮动方向" data-i18n-aria-label="appearance.popupLifetimeJitterModeAria">
+                            <button type="button" class="symbol-toggle" data-target="popupLifetimeJitterMode" data-value="smaller" aria-label="只向小" title="只向小" data-i18n-aria-label="size.mode.smaller" data-i18n-title="size.mode.smaller">-</button>
+                            <button type="button" class="symbol-toggle" data-target="popupLifetimeJitterMode" data-value="both" aria-label="同时向大和向小" title="同时向大和向小" data-i18n-aria-label="size.mode.both" data-i18n-title="size.mode.both">±</button>
+                            <button type="button" class="symbol-toggle" data-target="popupLifetimeJitterMode" data-value="larger" aria-label="只向大" title="只向大" data-i18n-aria-label="size.mode.larger" data-i18n-title="size.mode.larger">+</button>
+                          </div>
+                        </div>
+                        <div class="compact-digital-clock">
+                          <div class="clock-unit">
+                            <span class="clock-unit-label" data-i18n="schedule.time.hour">时</span>
+                            <input id="popupLifetimeJitterHours" type="number" min="0" max="24" step="1" placeholder="00" />
+                          </div>
+                          <span class="clock-colon">:</span>
+                          <div class="clock-unit">
+                            <span class="clock-unit-label" data-i18n="schedule.time.minute">分</span>
+                            <input id="popupLifetimeJitterMinutes" type="number" min="0" max="59" step="1" placeholder="00" />
+                          </div>
+                          <span class="clock-colon">:</span>
+                          <div class="clock-unit">
+                            <span class="clock-unit-label" data-i18n="schedule.time.second">秒</span>
+                            <input id="popupLifetimeJitterSeconds" type="number" min="0" max="59" step="1" placeholder="00" />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <p class="panel-note" data-i18n="appearance.popupLifetimeNote">设为 0:0:0 时不会自动消失；大于 0 时，图片和 AI 文本弹窗会在到时后缓慢淡出并关闭（不影响视频）。</p>
+                    <div class="behavior-switch-list" role="group" aria-label="弹窗效果开关列表">
+                      <label class="switch-row"><span class="switch-name" data-i18n="appearance.recursive">递归扫描子文件夹</span><span class="switch-state" aria-hidden="true"></span><input id="recursive" type="checkbox" /><i></i></label>
+                      <label class="switch-row"><span class="switch-name" data-i18n="appearance.gradual">窗口逐渐增多</span><span class="switch-state" aria-hidden="true"></span><input id="gradual" type="checkbox" /><i></i></label>
+                      <label class="switch-row"><span class="switch-name" data-i18n="appearance.alwaysOnTop">置顶显示</span><span class="switch-state" aria-hidden="true"></span><input id="alwaysOnTop" type="checkbox" /><i></i></label>
+                      <label class="switch-row"><span class="switch-name" data-i18n="appearance.fullscreen">全屏覆盖模式</span><span class="switch-state" aria-hidden="true"></span><input id="fullscreen" type="checkbox" /><i></i></label>
+                      <label class="switch-row"><span class="switch-name" data-i18n="appearance.muted">视频默认静音</span><span class="switch-state" aria-hidden="true"></span><input id="muted" type="checkbox" /><i></i></label>
+                      <label class="switch-row"><span class="switch-name" data-i18n="appearance.closeVideoOnEnded">视频播放完成自动关闭</span><span class="switch-state" aria-hidden="true"></span><input id="closeVideoOnEnded" type="checkbox" /><i></i></label>
+                      <label class="switch-row"><span class="switch-name" data-i18n="appearance.chaosVideo">混乱视频</span><span class="switch-state" aria-hidden="true"></span><input id="chaosVideo" type="checkbox" /><i></i></label>
+                      <p class="panel-note" style="margin-top:3px;margin-bottom:6px;" data-i18n="appearance.chaosVideoNote">开启后，视频将从随机进度开始播放（避开最后几秒）。且视频受“自然消失时间”控制。若未到消失时间但播放完毕，也会自动关闭。开启此功能将覆盖“视频播放完成自动关闭”。</p>
+                      <label class="switch-row"><span class="switch-name" data-i18n="appearance.clickToClose">点击任意位置关闭</span><span class="switch-state" aria-hidden="true"></span><input id="clickToClose" type="checkbox" /><i></i></label>
+                      <label class="switch-row"><span class="switch-name" data-i18n="appearance.randomCloseButton">关闭按钮随机位置</span><span class="switch-state" aria-hidden="true"></span><input id="randomCloseButton" type="checkbox" /><i></i></label>
+                      <label class="switch-row"><span class="switch-name" data-i18n="appearance.disableManualClose">禁止手动关闭弹窗</span><span class="switch-state" aria-hidden="true"></span><input id="disableManualClose" type="checkbox" /><i></i></label>
+                      <p class="panel-note" style="margin-top:3px;margin-bottom:6px;" data-i18n="appearance.disableManualCloseNote">开启后无法通过按钮、点击或 Esc 关闭弹窗。仅在自然消失时间 > 0 时生效，主面板关闭不受影响。</p>
+                      <label class="switch-row"><span class="switch-name" data-i18n="appearance.developerMode">开发者模式 (隐私保护)</span><span class="switch-state" aria-hidden="true"></span><input id="developerMode" type="checkbox" /><i></i></label>
+                      <p class="panel-note" style="margin-top:3px;margin-bottom:6px;" data-i18n="appearance.developerModeNote">开启后将隐藏主界面上的文件夹路径和 API 密钥等敏感信息。同时允许你在弹出的图片/视频上点击右键，在文件管理器中定位该文件。</p>
+                      <label class="switch-row"><span class="switch-name" data-i18n="ai.enablePopupSchedule">让 AI 文本参与弹窗调度</span><span class="switch-state" aria-hidden="true"></span><input id="aiPopupScheduleEnabled" type="checkbox" /><i></i></label>
+                    </div>
+                  </section>
+                </section>
+
+                <section class="section-panel" data-section-panel="appearance-displays" hidden>
+                  <section class="panel">
+                    <h3 data-i18n="appearance.displayTitle">弹窗显示器</h3>
+                    <p class="panel-note" data-i18n="appearance.displayNote">勾选后，媒体弹窗和 AI 文本弹窗只会出现在这些显示器上。没有勾选任何项时，会默认使用所有显示器。</p>
+                    <div id="popupDisplayList" class="behavior-switch-list" aria-label="弹窗显示器列表" data-i18n-aria-label="appearance.displayListAria"></div>
+                  </section>
+                </section>
+
+                <section class="section-panel" data-section-panel="appearance-close-button" hidden>
+                  <section class="panel panel-nested close-button-panel">
+                    <h3 data-i18n="appearance.closeButton">关闭按钮</h3>
+                    <p class="panel-note" data-i18n="appearance.closeButtonNote">按钮文字留空时会跟随当前语言。开启“点击任意位置关闭”后，这个按钮会自动隐藏。</p>
+                    <div class="detail-grid close-button-grid">
+                      <label class="field field-span-2">
+                        <span data-i18n="closeButton.text">按钮文字</span>
+                        <input id="closeButtonText" type="text" maxlength="24" />
+                      </label>
+                      <label class="field">
+                        <span data-i18n="closeButton.fontSize">文字大小</span>
+                        <input id="closeButtonFontSize" type="number" min="10" max="36" step="1" />
+                      </label>
+                      <label class="field">
+                        <span data-i18n="closeButton.borderRadius">圆角</span>
+                        <input id="closeButtonBorderRadius" type="number" min="0" max="32" step="1" />
+                      </label>
+                      <label class="field">
+                        <span data-i18n="closeButton.paddingX">左右内边距</span>
+                        <input id="closeButtonPaddingX" type="number" min="8" max="48" step="1" />
+                      </label>
+                      <label class="field">
+                        <span data-i18n="closeButton.paddingY">上下内边距</span>
+                        <input id="closeButtonPaddingY" type="number" min="4" max="24" step="1" />
+                      </label>
+                      <label class="field">
+                        <span data-i18n="closeButton.offsetX">左侧边距</span>
+                        <input id="closeButtonOffsetX" type="number" min="0" max="120" step="1" />
+                      </label>
+                      <label class="field">
+                        <span data-i18n="closeButton.offsetY">顶部边距</span>
+                        <input id="closeButtonOffsetY" type="number" min="0" max="120" step="1" />
+                      </label>
+                      <label class="field color-field">
+                        <span data-i18n="closeButton.backgroundColor">背景颜色</span>
+                        <input id="closeButtonBackgroundColor" type="color" />
+                      </label>
+                      <label class="field color-field">
+                        <span data-i18n="closeButton.textColor">文字颜色</span>
+                        <input id="closeButtonTextColor" type="color" />
+                      </label>
+                      <label class="field color-field">
+                        <span data-i18n="closeButton.borderColor">边框颜色</span>
+                        <input id="closeButtonBorderColor" type="color" />
+                      </label>
+                      <label class="field color-field">
+                        <span data-i18n="closeButton.hoverBackgroundColor">悬停背景</span>
+                        <input id="closeButtonHoverBackgroundColor" type="color" />
+                      </label>
+                      <label class="field color-field">
+                        <span data-i18n="closeButton.hoverTextColor">悬停文字</span>
+                        <input id="closeButtonHoverTextColor" type="color" />
+                      </label>
+                    </div>
+                  </section>
+                </section>
+
+                <section class="section-panel" data-section-panel="appearance-window-size" hidden>
+                  <section class="panel">
+                    <h3 data-i18n="appearance.windowSize">窗口尺寸</h3>
+                    <div class="size-panel-head">
+                      <p class="panel-note scrub-note" data-i18n="appearance.sizeSplitNote">关闭分离时，图片和视频共用一套尺寸；开启后可分别设置。浮动方向改成了符号按钮，当前模式会直接点亮。</p>
+                      <label class="switch-row size-split-switch"><span data-i18n="appearance.separateMediaSizeSettings">分离设置视频和图片</span><input id="separateMediaSizeSettings" type="checkbox" /><i></i></label>
+                    </div>
+                    <div class="size-panels">
+                      <section id="sharedSizePanel" class="panel panel-nested size-card">
+                        <h3 data-i18n="size.shared">统一尺寸</h3>
+                        <label class="field">
+                          <span data-i18n="size.baseWidth">基准宽度</span>
+                          <input id="sharedBaseWidth" type="number" min="160" max="3840" step="10" />
+                        </label>
+                        <label class="field">
+                          <span data-i18n="size.baseHeight">基准高度</span>
+                          <input id="sharedBaseHeight" type="number" min="120" max="2160" step="10" />
+                        </label>
+                        <label class="field">
+                          <span data-i18n="size.jitter">尺寸浮动值</span>
+                          <input id="sharedSizeJitter" type="number" min="0" max="2000" step="10" />
+                        </label>
+                        <div class="field">
+                          <span data-i18n="size.jitterMode">浮动方向</span>
+                          <input id="sharedSizeJitterMode" type="hidden" value="both" />
+                          <div class="symbol-toggle-group" aria-label="统一尺寸浮动方向" data-i18n-aria-label="size.mode.sharedAria">
+                            <button type="button" class="symbol-toggle" data-target="sharedSizeJitterMode" data-value="smaller" aria-label="只向小" title="只向小" data-i18n-aria-label="size.mode.smaller" data-i18n-title="size.mode.smaller">-</button>
+                            <button type="button" class="symbol-toggle" data-target="sharedSizeJitterMode" data-value="both" aria-label="同时向大和向小" title="同时向大和向小" data-i18n-aria-label="size.mode.both" data-i18n-title="size.mode.both">±</button>
+                            <button type="button" class="symbol-toggle" data-target="sharedSizeJitterMode" data-value="larger" aria-label="只向大" title="只向大" data-i18n-aria-label="size.mode.larger" data-i18n-title="size.mode.larger">+</button>
+                          </div>
+                        </div>
+                        <label class="field">
+                          <span data-i18n="size.compensationMultiplier">大图补偿倍率</span>
+                          <input id="sharedCompensationMultiplier" type="number" min="1" max="5" step="0.1" />
+                        </label>
+                        <label class="field">
+                          <span data-i18n="size.compensationThreshold">触发补偿倍率下限(倍数)</span>
+                          <input id="sharedCompensationThreshold" type="number" min="1" max="10" step="0.1" />
+                        </label>
+                      </section>
+                      <div id="separateSizePanels" class="size-panels size-panels-split" hidden>
+                        <section class="panel panel-nested size-card">
+                          <h3 data-i18n="size.image">图片窗口</h3>
+                          <label class="field">
+                            <span data-i18n="size.baseWidth">基准宽度</span>
+                            <input id="imageBaseWidth" type="number" min="160" max="3840" step="10" />
+                          </label>
+                          <label class="field">
+                            <span data-i18n="size.baseHeight">基准高度</span>
+                            <input id="imageBaseHeight" type="number" min="120" max="2160" step="10" />
+                          </label>
+                          <label class="field">
+                            <span data-i18n="size.jitter">尺寸浮动值</span>
+                            <input id="imageSizeJitter" type="number" min="0" max="2000" step="10" />
+                          </label>
+                          <div class="field">
+                            <span data-i18n="size.jitterMode">浮动方向</span>
+                            <input id="imageSizeJitterMode" type="hidden" value="both" />
+                            <div class="symbol-toggle-group" aria-label="图片尺寸浮动方向" data-i18n-aria-label="size.mode.imageAria">
+                              <button type="button" class="symbol-toggle" data-target="imageSizeJitterMode" data-value="smaller" aria-label="只向小" title="只向小" data-i18n-aria-label="size.mode.smaller" data-i18n-title="size.mode.smaller">-</button>
+                              <button type="button" class="symbol-toggle" data-target="imageSizeJitterMode" data-value="both" aria-label="同时向大和向小" title="同时向大和向小" data-i18n-aria-label="size.mode.both" data-i18n-title="size.mode.both">±</button>
+                              <button type="button" class="symbol-toggle" data-target="imageSizeJitterMode" data-value="larger" aria-label="只向大" title="只向大" data-i18n-aria-label="size.mode.larger" data-i18n-title="size.mode.larger">+</button>
+                            </div>
+                          </div>
+                          <label class="field">
+                            <span data-i18n="size.compensationMultiplier">大图补偿倍率</span>
+                            <input id="imageCompensationMultiplier" type="number" min="1" max="5" step="0.1" />
+                          </label>
+                          <label class="field">
+                            <span data-i18n="size.compensationThreshold">触发补偿倍率下限(倍数)</span>
+                            <input id="imageCompensationThreshold" type="number" min="1" max="10" step="0.1" />
+                          </label>
+                        </section>
+                        <section class="panel panel-nested size-card">
+                          <h3 data-i18n="size.video">视频窗口</h3>
+                          <label class="field">
+                            <span data-i18n="size.baseWidth">基准宽度</span>
+                            <input id="videoBaseWidth" type="number" min="160" max="3840" step="10" />
+                          </label>
+                          <label class="field">
+                            <span data-i18n="size.baseHeight">基准高度</span>
+                            <input id="videoBaseHeight" type="number" min="120" max="2160" step="10" />
+                          </label>
+                          <label class="field">
+                            <span data-i18n="size.jitter">尺寸浮动值</span>
+                            <input id="videoSizeJitter" type="number" min="0" max="2000" step="10" />
+                          </label>
+                          <div class="field">
+                            <span data-i18n="size.jitterMode">浮动方向</span>
+                            <input id="videoSizeJitterMode" type="hidden" value="both" />
+                            <div class="symbol-toggle-group" aria-label="视频尺寸浮动方向" data-i18n-aria-label="size.mode.videoAria">
+                              <button type="button" class="symbol-toggle" data-target="videoSizeJitterMode" data-value="smaller" aria-label="只向小" title="只向小" data-i18n-aria-label="size.mode.smaller" data-i18n-title="size.mode.smaller">-</button>
+                              <button type="button" class="symbol-toggle" data-target="videoSizeJitterMode" data-value="both" aria-label="同时向大和向小" title="同时向大和向小" data-i18n-aria-label="size.mode.both" data-i18n-title="size.mode.both">±</button>
+                              <button type="button" class="symbol-toggle" data-target="videoSizeJitterMode" data-value="larger" aria-label="只向大" title="只向大" data-i18n-aria-label="size.mode.larger" data-i18n-title="size.mode.larger">+</button>
+                            </div>
+                          </div>
+                          <label class="field">
+                            <span data-i18n="size.compensationMultiplier">大图补偿倍率</span>
+                            <input id="videoCompensationMultiplier" type="number" min="1" max="5" step="0.1" />
+                          </label>
+                          <label class="field">
+                            <span data-i18n="size.compensationThreshold">触发补偿倍率下限(倍数)</span>
+                            <input id="videoCompensationThreshold" type="number" min="1" max="10" step="0.1" />
+                          </label>
+                        </section>
+                      </div>
+                    </div>
+                  </section>
+                </section>
+              </div>
+            </div>
+          </section>
+
+          <section class="page" id="page-language">
+            <div class="page-header">
+              <h2 data-i18n="page.language">语言</h2>
+            </div>
+            <section class="panel">
+              <label class="field">
+                <span data-i18n="language.label">界面语言</span>
+                <select id="language">
+                  <option value="system" data-i18n="language.system">跟随系统</option>
+                  <option value="zh-CN" data-i18n="language.zh-CN">简体中文</option>
+                  <option value="en-US" data-i18n="language.en-US">English</option>
+                </select>
+              </label>
+              <p class="panel-note" data-i18n="advanced.placeholder">这里为后续功能预留扩展区。新增能力可按功能域拆分到新的导航页面，避免回到单页堆叠。</p>
+            </section>
+          </section>
+
+          <section class="page" id="page-shortcuts">
+            <div class="page-header">
+              <h2 data-i18n="page.shortcuts">快捷键</h2>
+            </div>
+            <section class="panel">
+              <h3 data-i18n="advanced.shortcutsTitle">快捷键</h3>
+              <p class="panel-note" data-i18n="advanced.shortcutsNote">点击输入框后直接按组合键录制。按 Backspace 或 Delete 可清空，留空表示禁用。</p>
+              <div class="shortcut-grid">
+                <label class="field shortcut-field">
+                  <span data-i18n="shortcuts.start">启动快捷键</span>
+                  <input id="startShortcut" class="shortcut-input" type="text" readonly spellcheck="false" autocomplete="off" />
+                  <div id="startShortcutStatus" class="shortcut-status" aria-live="polite"></div>
+                </label>
+                <label class="field shortcut-field">
+                  <span data-i18n="shortcuts.pause">暂停快捷键</span>
+                  <input id="pauseShortcut" class="shortcut-input" type="text" readonly spellcheck="false" autocomplete="off" />
+                  <div id="pauseShortcutStatus" class="shortcut-status" aria-live="polite"></div>
+                </label>
+                <label class="field shortcut-field">
+                  <span data-i18n="shortcuts.stop">停止快捷键</span>
+                  <input id="stopShortcut" class="shortcut-input" type="text" readonly spellcheck="false" autocomplete="off" />
+                  <div id="stopShortcutStatus" class="shortcut-status" aria-live="polite"></div>
+                </label>
+                <label class="field shortcut-field">
+                  <span data-i18n="shortcuts.closeAll">关闭全部快捷键</span>
+                  <input id="closeAllShortcut" class="shortcut-input" type="text" readonly spellcheck="false" autocomplete="off" />
+                  <div id="closeAllShortcutStatus" class="shortcut-status" aria-live="polite"></div>
+                </label>
+              </div>
+            </section>
+          </section>
+
+          <section class="page" id="page-advanced">
+            <div class="page-header">
+              <h2 data-i18n="page.advanced">高级控制</h2>
+            </div>
+            <div class="advanced-shell">
+              <div id="advancedProcessRulesMount"></div>
+              <div class="advanced-secondary-grid">
+                <div id="advancedShortcutsMount"></div>
+                <div id="advancedLanguageMount"></div>
+              </div>
+            </div>
+          </section>
+
+          <section class="page" id="page-ai">
+            <div class="page-header">
+              <h2 data-i18n="page.ai">AI 文案</h2>
+              <div class="actions-inline">
+                <button id="aiTestInteractionButton" type="button" data-i18n="ai.interaction.test">状态互动测试一次</button>
+                <button id="aiShowPopupButton" type="button" class="primary" data-i18n="ai.showPopup">生成并弹出文本</button>
+              </div>
+            </div>
+            <div class="settings-shell">
+              <aside class="panel section-sidebar">
+                <div class="section-sidebar-title" data-i18n="ai.sidebarTitle">AI 分组</div>
+                <div class="section-nav-list" role="tablist" aria-label="AI 设置导航" data-i18n-aria-label="ai.navAria">
+                  <button type="button" class="section-nav-item active" data-section-target="ai-api">
+                    <span class="section-nav-icon" aria-hidden="true">✦</span>
+                    <span data-i18n="ai.section.api">API 与模型</span>
+                  </button>
+                  <button type="button" class="section-nav-item" data-section-target="ai-prompts">
+                    <span class="section-nav-icon" aria-hidden="true">≋</span>
+                    <span data-i18n="ai.section.prompts">提示词设定</span>
+                  </button>
+                  <button type="button" class="section-nav-item" data-section-target="ai-profile">
+                    <span class="section-nav-icon" aria-hidden="true">◫</span>
+                    <span data-i18n="ai.section.profile">个人信息</span>
+                  </button>
+                  <button type="button" class="section-nav-item" data-section-target="ai-popup-appearance">
+                    <span class="section-nav-icon" aria-hidden="true">◩</span>
+                    <span data-i18n="ai.section.popupAppearance">文本弹窗外观</span>
+                  </button>
+                  <button type="button" class="section-nav-item" data-section-target="ai-websites">
+                    <span class="section-nav-icon" aria-hidden="true">⌂</span>
+                    <span data-i18n="ai.section.websites">网站内容来源</span>
+                  </button>
+                </div>
+              </aside>
+
+              <div class="section-content">
+                <section class="section-panel active" data-section-panel="ai-api">
+                  <section class="panel panel-nested accent-panel ai-panel">
+                    <div class="panel-title">
+                      <h3 data-i18n="advanced.aiTitle">AI 文案</h3>
+                    </div>
+                    <p class="panel-note" data-i18n="advanced.aiNote">通过 DeepSeek 生成 AI 文本内容。API Key 仅用于主进程请求，可用于自动文本弹窗和手动预览弹窗。</p>
+                    <div class="grid ai-settings-grid">
+                      <label class="field">
+                        <span data-i18n="ai.provider">模型服务</span>
+                        <select id="aiProvider">
+                          <option value="deepseek">DeepSeek</option>
+                        </select>
+                      </label>
+                      <label class="field">
+                        <span data-i18n="ai.model">模型</span>
+                        <select id="aiModel">
+                          <option value="deepseek-chat" data-i18n="ai.model.chat">DeepSeek Chat</option>
+                          <option value="deepseek-reasoner" data-i18n="ai.model.reasoner">DeepSeek Reasoner</option>
+                        </select>
+                      </label>
+                    </div>
+                    <label class="field">
+                      <span data-i18n="ai.apiKey">API Key</span>
+                      <input id="aiApiKey" type="password" autocomplete="off" spellcheck="false" />
+                    </label>
+                    <section class="panel panel-nested">
+                      <div class="panel-title">
+                        <h3 data-i18n="ai.interaction.title">状态互动模式</h3>
+                      </div>
+                      <p class="panel-note" data-i18n="ai.interaction.note">启用后，软件会按这里设置的独立间隔读取当前时间、运行状态和弹窗数量，并生成一条 AI 文本弹窗。暂停或停止时不会触发。</p>
+                      <label class="switch-row"><span data-i18n="ai.interaction.enable">启用状态互动</span><input id="aiInteractionEnabled" type="checkbox" /><i></i></label>
+                      <div class="field">
+                        <span data-i18n="ai.interaction.interval">互动间隔</span>
+                        <div class="compact-digital-clock">
+                          <div class="clock-unit">
+                            <span class="clock-unit-label" data-i18n="schedule.time.hour">时</span>
+                            <input id="aiInteractionIntervalHours" type="number" min="0" max="24" step="1" placeholder="00" />
+                          </div>
+                          <span class="clock-colon">:</span>
+                          <div class="clock-unit">
+                            <span class="clock-unit-label" data-i18n="schedule.time.minute">分</span>
+                            <input id="aiInteractionIntervalMinutes" type="number" min="0" max="59" step="1" placeholder="00" />
+                          </div>
+                          <span class="clock-colon">:</span>
+                          <div class="clock-unit">
+                            <span class="clock-unit-label" data-i18n="schedule.time.second">秒</span>
+                            <input id="aiInteractionIntervalSeconds" type="number" min="0" max="59" step="1" placeholder="00" />
+                          </div>
+                        </div>
+                      </div>
+                      <div class="grid ai-settings-grid">
+                        <label class="field">
+                          <span data-i18n="ai.interaction.tone">语气风格</span>
+                          <select id="aiInteractionTone">
+                            <option value="teasing" data-i18n="ai.interaction.tone.teasing">轻微调侃</option>
+                            <option value="gentle" data-i18n="ai.interaction.tone.gentle">偏温和</option>
+                            <option value="direct" data-i18n="ai.interaction.tone.direct">偏直接</option>
+                            <option value="neutral" data-i18n="ai.interaction.tone.neutral">偏中性</option>
+                          </select>
+                        </label>
+                        <label class="switch-row compact-switch"><span data-i18n="ai.interaction.includeForegroundApp">读取当前前台软件名</span><input id="aiInteractionIncludeForegroundApp" type="checkbox" /><i></i></label>
+                      </div>
+                      <p class="panel-note" data-i18n="ai.interaction.foregroundHelp">关闭时只使用时间、运行状态和弹窗数量；开启后会额外把当前前台软件名交给 AI，不保存历史。</p>
+                    </section>
+                    <section class="panel panel-nested">
+                      <div class="panel-title">
+                        <h3 data-i18n="ai.conversation.title">AI 对话输出</h3>
+                      </div>
+                      <p class="panel-note" data-i18n="ai.conversation.note">这些开关控制 AI 文本弹窗的并发和回复链路。开启“只保留一个”后，新 AI 文本会替换旧的 AI 文本弹窗；开启“回复后立刻生成”后，用户在弹窗里发送回复会马上触发下一条 AI 文本。</p>
+                      <div class="behavior-switch-list" role="group" aria-label="AI 对话输出开关列表">
+                        <label class="switch-row"><span data-i18n="ai.conversation.singlePopup">同一时间只保留一个 AI 文本弹窗</span><input id="aiSinglePopupMode" type="checkbox" /><i></i></label>
+                        <label class="switch-row"><span data-i18n="ai.conversation.immediateReply">用户回复后立刻生成下一条 AI 文本</span><input id="aiImmediateReplyEnabled" type="checkbox" /><i></i></label>
+                      </div>
+                    </section>
+                    <p id="aiStatus" class="panel-note" aria-live="polite" data-i18n="ai.status.ready">当前可直接预览一条 AI 文本弹窗。</p>
+                  </section>
+                </section>
+
+                <section class="section-panel" data-section-panel="ai-prompts" hidden>
+                  <section class="panel panel-nested ai-panel">
+                    <div class="panel-title">
+                      <h3 data-i18n="ai.promptsTitle">AI 提示词设定</h3>
+                    </div>
+                    <label class="field">
+                      <span data-i18n="ai.systemPrompt">系统设定</span>
+                      <textarea id="aiSystemPrompt" rows="4"></textarea>
+                    </label>
+                    <label class="field">
+                      <span data-i18n="ai.knowledgeBase">基础知识</span>
+                      <textarea id="aiKnowledgeBase" rows="5"></textarea>
+                    </label>
+                    <label class="field">
+                      <span data-i18n="ai.contextMemory">轻量上下文记忆</span>
+                      <textarea id="aiContextMemory" rows="4"></textarea>
+                    </label>
+                  </section>
+                </section>
+
+                <section class="section-panel" data-section-panel="ai-profile" hidden>
+                  <section class="panel panel-nested ai-panel">
+                    <div class="panel-title">
+                      <h3 data-i18n="ai.profileTitle">个人信息与场景库</h3>
+                    </div>
+                    <p class="panel-note" data-i18n="ai.profileNote">这些内容会保存在本地配置里，并作为 AI 文本生成的补充上下文。年龄留空则不使用；如填写年龄，仅接受 18 到 99。场景库建议一行一个短场景，模型会按需抽取或组合。</p>
+                    <div class="grid ai-settings-grid">
+                      <label class="field">
+                        <span data-i18n="ai.profile.age">年龄</span>
+                        <input id="aiProfileAge" type="number" min="18" max="99" step="1" data-i18n-placeholder="ai.placeholder.age" />
+                      </label>
+                      <label class="field">
+                        <span data-i18n="ai.profile.name">我的名字</span>
+                        <input id="aiProfileName" type="text" maxlength="48" data-i18n-placeholder="ai.placeholder.name" />
+                      </label>
+                      <label class="field">
+                        <span data-i18n="ai.profile.companionName">供养者/身边人的名字</span>
+                        <input id="aiProfileCompanionName" type="text" maxlength="48" data-i18n-placeholder="ai.placeholder.companionName" />
+                      </label>
+                      <label class="field">
+                        <span data-i18n="ai.profile.companionRole">供养者/身边人身份</span>
+                        <input id="aiProfileCompanionRole" type="text" maxlength="48" data-i18n-placeholder="ai.placeholder.companionRole" />
+                      </label>
+                    </div>
+                    <label class="field">
+                      <span data-i18n="ai.profile.appearance">我的外貌</span>
+                      <textarea id="aiProfileAppearance" rows="3" data-i18n-placeholder="ai.placeholder.appearance"></textarea>
+                    </label>
+                    <label class="field">
+                      <span data-i18n="ai.profile.dailyPersona">我的日常伪装</span>
+                      <textarea id="aiProfileDailyPersona" rows="3" data-i18n-placeholder="ai.placeholder.dailyPersona"></textarea>
+                    </label>
+                    <label class="field">
+                      <span data-i18n="ai.profile.sceneLibrary">场景库</span>
+                      <textarea id="aiSceneLibrary" rows="6" data-i18n-placeholder="ai.placeholder.sceneLibrary"></textarea>
+                    </label>
+                  </section>
+                </section>
+
+                <section class="section-panel" data-section-panel="ai-popup-appearance" hidden>
+                  <section class="panel panel-nested ai-panel ai-appearance-panel">
+                    <div class="panel-title">
+                      <h3 data-i18n="ai.popupAppearance.title">AI 文本弹窗外观设置</h3>
+                      <button id="aiSaveAppearanceButton" type="button" class="primary" data-i18n="ai.popupAppearance.save">保存外观设置</button>
+                    </div>
+                    <p class="panel-note" data-i18n="ai.popupAppearance.note">下面设置会直接作用于 AI 文本弹窗。右侧示例会实时变化，便于你边调边看效果。</p>
+
+                    <details class="ai-appearance-section" open>
+                      <summary class="ai-appearance-summary">
+                        <span data-i18n="ai.popupAppearance.windowTextTitle">窗口与文字</span>
+                      </summary>
+                      <div class="ai-appearance-section-body">
+                        <div class="detail-grid close-button-grid">
+                          <label class="field">
+                            <span data-i18n="ai.popupAppearance.width">窗口宽度</span>
+                            <input id="aiPopupWidth" type="number" min="320" max="2400" step="10" />
+                          </label>
+                          <label class="field">
+                            <span data-i18n="ai.popupAppearance.height">窗口高度</span>
+                            <input id="aiPopupHeight" type="number" min="96" max="1600" step="10" />
+                          </label>
+                          <label class="field color-field">
+                            <span data-i18n="ai.popupAppearance.bodyBackgroundColor">窗口背景色</span>
+                            <input id="aiPopupBodyBackgroundColor" type="color" />
+                          </label>
+                          <label class="field">
+                            <span data-i18n="ui.opacity">透明度</span>
+                            <input id="aiPopupBodyBackgroundOpacity" type="range" min="0" max="1" step="0.01" />
+                          </label>
+                          <label class="field color-field">
+                            <span data-i18n="ai.popupAppearance.textColor">文字颜色</span>
+                            <input id="aiPopupTextColor" type="color" />
+                          </label>
+                          <label class="field">
+                            <span data-i18n="ui.opacity">透明度</span>
+                            <input id="aiPopupTextOpacity" type="range" min="0" max="1" step="0.01" />
+                          </label>
+                          <label class="field">
+                            <span data-i18n="ai.popupAppearance.textFontSize">文字大小</span>
+                            <input id="aiPopupTextFontSize" type="number" min="12" max="42" step="1" />
+                          </label>
+                          <label class="field">
+                            <span data-i18n="ai.popupAppearance.textLineHeight">行高</span>
+                            <input id="aiPopupTextLineHeight" type="number" min="1.1" max="2.4" step="0.1" />
+                          </label>
+                          <label class="field">
+                            <span data-i18n="ai.popupAppearance.textAlign">文本对齐</span>
+                            <select id="aiPopupTextAlign">
+                              <option value="left" data-i18n="ai.popupAppearance.textAlign.left">左对齐</option>
+                              <option value="center" data-i18n="ai.popupAppearance.textAlign.center">居中</option>
+                              <option value="right" data-i18n="ai.popupAppearance.textAlign.right">右对齐</option>
+                            </select>
+                          </label>
+                        </div>
+                        <p class="panel-note" data-i18n="ai.popupAppearance.sizeNote">宽高会直接应用到真实 AI 文本弹窗；预览区域采用可滚动舞台，缩放只影响预览显示，不影响真实弹窗尺寸。</p>
+                      </div>
+                    </details>
+
+                    <details class="ai-appearance-section">
+                      <summary class="ai-appearance-summary">
+                        <span data-i18n="ai.popupAppearance.cardTitle">文本区域</span>
+                      </summary>
+                      <div class="ai-appearance-section-body">
+                        <div class="detail-grid close-button-grid">
+                          <label class="field color-field">
+                            <span data-i18n="ai.popupAppearance.cardBackgroundColor">文本区域背景色</span>
+                            <input id="aiPopupCardBackgroundColor" type="color" />
+                          </label>
+                          <label class="field">
+                            <span data-i18n="ui.opacity">透明度</span>
+                            <input id="aiPopupCardBackgroundOpacity" type="range" min="0" max="1" step="0.01" />
+                          </label>
+                          <label class="field color-field">
+                            <span data-i18n="ai.popupAppearance.cardBorderColor">文本区域边框色</span>
+                            <input id="aiPopupCardBorderColor" type="color" />
+                          </label>
+                          <label class="field">
+                            <span data-i18n="ui.opacity">透明度</span>
+                            <input id="aiPopupCardBorderOpacity" type="range" min="0" max="1" step="0.01" />
+                          </label>
+                          <label class="field">
+                            <span data-i18n="ai.popupAppearance.cardBorderWidth">文本区域边框宽度</span>
+                            <input id="aiPopupCardBorderWidth" type="number" min="0" max="4" step="1" />
+                          </label>
+                          <label class="field">
+                            <span data-i18n="ai.popupAppearance.cardBorderRadius">文本区域圆角</span>
+                            <input id="aiPopupCardBorderRadius" type="number" min="0" max="24" step="1" />
+                          </label>
+                          <label class="field">
+                            <span data-i18n="ai.popupAppearance.cardPaddingX">文本区域左右内边距</span>
+                            <input id="aiPopupCardPaddingX" type="number" min="0" max="40" step="1" />
+                          </label>
+                          <label class="field">
+                            <span data-i18n="ai.popupAppearance.cardPaddingY">文本区域上下内边距</span>
+                            <input id="aiPopupCardPaddingY" type="number" min="0" max="32" step="1" />
+                          </label>
+                        </div>
+                      </div>
+                    </details>
+
+                    <details class="ai-appearance-section">
+                      <summary class="ai-appearance-summary">
+                        <span data-i18n="ai.popupAppearance.cardShadowTitle">文本区域阴影</span>
+                      </summary>
+                      <div class="ai-appearance-section-body">
+                        <div class="detail-grid close-button-grid">
+                          <label class="field color-field">
+                            <span data-i18n="ai.popupAppearance.cardShadowColor">阴影颜色</span>
+                            <input id="aiPopupCardShadowColor" type="color" />
+                          </label>
+                          <label class="field">
+                            <span data-i18n="ui.opacity">透明度</span>
+                            <input id="aiPopupCardShadowOpacity" type="range" min="0" max="1" step="0.01" />
+                          </label>
+                          <label class="field">
+                            <span data-i18n="ai.popupAppearance.cardShadowBlur">阴影模糊</span>
+                            <input id="aiPopupCardShadowBlur" type="number" min="0" max="80" step="1" />
+                          </label>
+                          <label class="field">
+                            <span data-i18n="ai.popupAppearance.cardShadowSpread">阴影扩散</span>
+                            <input id="aiPopupCardShadowSpread" type="number" min="-40" max="40" step="1" />
+                          </label>
+                          <label class="field">
+                            <span data-i18n="ai.popupAppearance.cardShadowOffsetX">阴影横向偏移</span>
+                            <input id="aiPopupCardShadowOffsetX" type="number" min="-40" max="40" step="1" />
+                          </label>
+                          <label class="field">
+                            <span data-i18n="ai.popupAppearance.cardShadowOffsetY">阴影纵向偏移</span>
+                            <input id="aiPopupCardShadowOffsetY" type="number" min="-40" max="40" step="1" />
+                          </label>
+                        </div>
+                      </div>
+                    </details>
+
+                    <details class="ai-appearance-section">
+                      <summary class="ai-appearance-summary">
+                        <span data-i18n="ai.popupAppearance.textShadowTitle">文本阴影</span>
+                      </summary>
+                      <div class="ai-appearance-section-body">
+                        <div class="detail-grid close-button-grid">
+                          <label class="field color-field">
+                            <span data-i18n="ai.popupAppearance.textShadowColor">阴影颜色</span>
+                            <input id="aiPopupTextShadowColor" type="color" />
+                          </label>
+                          <label class="field">
+                            <span data-i18n="ui.opacity">透明度</span>
+                            <input id="aiPopupTextShadowOpacity" type="range" min="0" max="1" step="0.01" />
+                          </label>
+                          <label class="field">
+                            <span data-i18n="ai.popupAppearance.textShadowBlur">阴影模糊</span>
+                            <input id="aiPopupTextShadowBlur" type="number" min="0" max="80" step="1" />
+                          </label>
+                          <label class="field">
+                            <span data-i18n="ai.popupAppearance.textShadowSpread">阴影扩散</span>
+                            <input id="aiPopupTextShadowSpread" type="number" min="-40" max="40" step="1" />
+                          </label>
+                          <label class="field">
+                            <span data-i18n="ai.popupAppearance.textShadowOffsetX">阴影横向偏移</span>
+                            <input id="aiPopupTextShadowOffsetX" type="number" min="-40" max="40" step="1" />
+                          </label>
+                          <label class="field">
+                            <span data-i18n="ai.popupAppearance.textShadowOffsetY">阴影纵向偏移</span>
+                            <input id="aiPopupTextShadowOffsetY" type="number" min="-40" max="40" step="1" />
+                          </label>
+                        </div>
+                      </div>
+                    </details>
+
+                    <details class="ai-appearance-section">
+                      <summary class="ai-appearance-summary">
+                        <span data-i18n="ai.popupAppearance.closeButtonTitle">关闭按钮</span>
+                      </summary>
+                      <div class="ai-appearance-section-body">
+                        <div class="detail-grid close-button-grid">
+                          <label class="field">
+                            <span data-i18n="ai.popupAppearance.closeButtonFontSize">按钮文字大小</span>
+                            <input id="aiPopupCloseButtonFontSize" type="number" min="10" max="30" step="1" />
+                          </label>
+                          <label class="field">
+                            <span data-i18n="ai.popupAppearance.closeButtonBorderRadius">按钮圆角</span>
+                            <input id="aiPopupCloseButtonBorderRadius" type="number" min="0" max="24" step="1" />
+                          </label>
+                          <label class="field">
+                            <span data-i18n="ai.popupAppearance.closeButtonPaddingX">按钮左右内边距</span>
+                            <input id="aiPopupCloseButtonPaddingX" type="number" min="8" max="36" step="1" />
+                          </label>
+                          <label class="field">
+                            <span data-i18n="ai.popupAppearance.closeButtonPaddingY">按钮上下内边距</span>
+                            <input id="aiPopupCloseButtonPaddingY" type="number" min="4" max="20" step="1" />
+                          </label>
+                          <label class="field">
+                            <span data-i18n="ai.popupAppearance.closeButtonOffsetX">按钮左侧边距</span>
+                            <input id="aiPopupCloseButtonOffsetX" type="number" min="0" max="80" step="1" />
+                          </label>
+                          <label class="field">
+                            <span data-i18n="ai.popupAppearance.closeButtonOffsetY">按钮顶部边距</span>
+                            <input id="aiPopupCloseButtonOffsetY" type="number" min="0" max="80" step="1" />
+                          </label>
+                          <label class="field color-field">
+                            <span data-i18n="ai.popupAppearance.closeButtonBackgroundColor">按钮背景色</span>
+                            <input id="aiPopupCloseButtonBackgroundColor" type="color" />
+                          </label>
+                          <label class="field">
+                            <span data-i18n="ui.opacity">透明度</span>
+                            <input id="aiPopupCloseButtonBackgroundOpacity" type="range" min="0" max="1" step="0.01" />
+                          </label>
+                          <label class="field color-field">
+                            <span data-i18n="ai.popupAppearance.closeButtonTextColor">按钮文字色</span>
+                            <input id="aiPopupCloseButtonTextColor" type="color" />
+                          </label>
+                          <label class="field">
+                            <span data-i18n="ui.opacity">透明度</span>
+                            <input id="aiPopupCloseButtonTextOpacity" type="range" min="0" max="1" step="0.01" />
+                          </label>
+                          <label class="field color-field">
+                            <span data-i18n="ai.popupAppearance.closeButtonBorderColor">按钮边框色</span>
+                            <input id="aiPopupCloseButtonBorderColor" type="color" />
+                          </label>
+                          <label class="field">
+                            <span data-i18n="ui.opacity">透明度</span>
+                            <input id="aiPopupCloseButtonBorderOpacity" type="range" min="0" max="1" step="0.01" />
+                          </label>
+                          <label class="field color-field">
+                            <span data-i18n="ai.popupAppearance.closeButtonHoverBackgroundColor">按钮悬停背景色</span>
+                            <input id="aiPopupCloseButtonHoverBackgroundColor" type="color" />
+                          </label>
+                          <label class="field">
+                            <span data-i18n="ui.opacity">透明度</span>
+                            <input id="aiPopupCloseButtonHoverBackgroundOpacity" type="range" min="0" max="1" step="0.01" />
+                          </label>
+                          <label class="field color-field">
+                            <span data-i18n="ai.popupAppearance.closeButtonHoverTextColor">按钮悬停文字色</span>
+                            <input id="aiPopupCloseButtonHoverTextColor" type="color" />
+                          </label>
+                          <label class="field">
+                            <span data-i18n="ui.opacity">透明度</span>
+                            <input id="aiPopupCloseButtonHoverTextOpacity" type="range" min="0" max="1" step="0.01" />
+                          </label>
+                        </div>
+                      </div>
+                    </details>
+
+                    <section class="ai-popup-preview-wrap" aria-live="polite">
+                      <div class="panel-title">
+                        <h3 data-i18n="ai.popupAppearance.previewTitle">实时预览示例</h3>
+                        <div class="preview-toolbar">
+                          <label class="field preview-scale-field">
+                            <span data-i18n="ai.popupAppearance.previewScale">预览缩放</span>
+                            <select id="aiPopupPreviewScale">
+                              <option value="0.5">50%</option>
+                              <option value="0.75">75%</option>
+                              <option value="1" selected>100%</option>
+                            </select>
+                          </label>
+                          <span id="aiPopupPreviewSize" class="preview-size-label"></span>
+                        </div>
+                      </div>
+                      <div class="ai-popup-preview-stage">
+                        <div id="aiPopupPreview" class="ai-popup-preview">
+                          <button id="aiPopupPreviewCloseButton" type="button" class="ai-popup-preview-close" data-i18n="viewer.close">关闭</button>
+                          <article id="aiPopupPreviewText" class="ai-popup-preview-text">今晚 22:40 的地铁站月台风很大，广播断断续续。你刚收起围巾，手机又亮了起来。</article>
+                        </div>
+                      </div>
+                    </section>
+                  </section>
+                </section>
+
+                <section class="section-panel" data-section-panel="ai-websites" hidden>
+                  <div id="aiWebsiteMount" class="ai-website-mount"></div>
+                </section>
+
+              </div>
+            </div>
+          </section>
+        </section>
+      </div>
+
+      <footer class="bottom-controls">
+        <div class="actions global-actions">
+          <button id="startButton" type="button" class="primary" data-i18n="buttons.start">启动</button>
+          <button id="pauseButton" type="button" data-i18n="buttons.pause">暂停</button>
+          <button id="stopButton" type="button" class="danger" data-i18n="buttons.stop">停止</button>
+          <button id="closeAllButton" type="button" data-i18n="buttons.closeAll">关闭所有弹窗</button>
+        </div>
+        <button id="toggleLogButton" type="button">展开日志</button>
+      </footer>
+
+      <section id="logDrawer" class="panel log-drawer">
+        <div class="panel-title">
+          <h3 data-i18n="log.title">状态日志</h3>
+          <button id="collapseLogButton" type="button" data-i18n="buttons.collapse">收起</button>
+        </div>
+        <pre id="logOutput">等待操作...</pre>
+      </section>
+    </main>
+
+    <div id="processPickerOverlay" class="modal-overlay" hidden>
+      <section class="panel process-picker-modal" role="dialog" aria-modal="true" aria-labelledby="processPickerTitle">
+        <div class="panel-title">
+          <h3 id="processPickerTitle" data-i18n="processRules.pickerTitle">选择运行中进程</h3>
+          <button id="processPickerCloseButton" type="button" data-i18n="buttons.close">关闭</button>
+        </div>
+        <label class="field process-picker-search">
+          <span data-i18n="processRules.search">搜索进程</span>
+          <input id="processPickerSearch" type="text" autocomplete="off" spellcheck="false" data-i18n-placeholder="processRules.searchPlaceholder" />
+        </label>
+        <div id="processPickerList" class="process-picker-list"></div>
+        <div class="process-picker-footer">
+          <p id="processPickerStatus" class="panel-note"></p>
+          <div class="actions-inline">
+            <button id="processPickerRefreshButton" type="button" data-i18n="processRules.refresh">刷新</button>
+            <button id="processPickerAddButton" type="button" class="primary" data-i18n="processRules.addSelected">添加选中进程</button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <script src="../shared/i18n.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>

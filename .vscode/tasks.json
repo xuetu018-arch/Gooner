@@ -1,0 +1,22 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "dev",
+            "type": "shell",
+            "command": "npm run dev",
+            "inAgents": true
+        },
+        {
+            "type": "npm",
+            "script": "dist",
+            "problemMatcher": [],
+            "label": "npm: dist",
+            "detail": "electron-builder --win",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
+    ]
+}
